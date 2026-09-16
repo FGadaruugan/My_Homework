@@ -80,7 +80,7 @@
             <div class="empty-state" id="empty-state">
               <div class="empty-mark"><svg class="icon"><use href="#i-book"/></svg></div>
               <h3 id="empty-title">Эхний даалгавраа нэмээрэй</h3>
-              <p id="empty-description">Хичээл, хийх зүйл, дуусгах өдрөө бичээд эхлээрэй.</p>
+              <p id="empty-description">Хичээл, даалгавар, огноогоо оруулаад эхлээрэй.</p>
               <button class="button button-primary" data-add id="empty-add"><svg class="icon"><use href="#i-plus"/></svg>Шинэ даалгавар</button>
               <button class="button button-quiet" id="clear-filter" hidden>Бүх хичээлийг харах</button>
             </div>
@@ -101,10 +101,27 @@
     <form id="task-form">
       <div class="dialog-heading"><div><p class="eyebrow">МИНИЙ ДААЛГАВАР</p><h2 id="dialog-title">Даалгавар нэмэх</h2></div><button type="button" class="icon-button" data-close="task-dialog" aria-label="Цонх хаах"><svg class="icon"><use href="#i-close"/></svg></button></div>
       <input id="task-id" type="hidden">
-      <label class="field">Хичээл<select id="task-subject" name="subject" required><option value="">Хичээл сонгох</option></select></label>
-      <label class="field">Хийх зүйл<input id="task-title" name="title" type="text" maxlength="180" placeholder="Жишээ: Хуудас 24, дасгал 1–5" required></label>
-      <div class="form-row"><label class="field">Дуусгах өдөр<input id="task-due" name="due" type="date" min="2000-01-01" max="2100-12-31" required></label><label class="field">Ач холбогдол<select id="task-priority" name="priority"><option value="normal">Энгийн</option><option value="high">Чухал</option></select></label></div>
-      <label class="field">Нэмэлт тэмдэглэл <span class="optional">Заавал биш</span><textarea id="task-notes" name="notes" rows="3" maxlength="2000" placeholder="Багшийн өгсөн заавар, сануулах зүйл…"></textarea></label>
+
+      <label class="field">Хичээл
+        <select id="task-subject" name="subject" required><option value="">Хичээл сонгох</option></select>
+      </label>
+
+      <label class="field">Даалгавар
+        <input id="task-title" name="title" type="text" maxlength="180" placeholder="Жишээ: Хуудас 24, дасгал 1–5" required>
+      </label>
+
+      <div class="form-row">
+        <label class="field">Хэзээний?
+          <input id="task-assigned" name="assigned" type="date" min="2000-01-01" max="2100-12-31" required>
+        </label>
+        <label class="field">Хэзээ өгөх?
+          <input id="task-due" name="due" type="date" min="2000-01-01" max="2100-12-31" required>
+        </label>
+      </div>
+
+      <input id="task-priority" name="priority" type="hidden" value="normal">
+      <input id="task-notes" name="notes" type="hidden" value="">
+
       <p class="form-error" id="form-error" role="alert" hidden></p>
       <div class="dialog-footer"><button type="button" class="button button-secondary" data-close="task-dialog">Болих</button><button type="submit" class="button button-primary" id="save-task">Хадгалах<svg class="icon"><use href="#i-check"/></svg></button></div>
     </form>
