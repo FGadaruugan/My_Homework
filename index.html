@@ -107,8 +107,14 @@
       </label>
 
       <label class="field">Даалгавар
-        <input id="task-title" name="title" type="text" maxlength="180" placeholder="Ж: Дасгал 1–5 · Хуудас 24 · Мэдээлэл хайх · Цээжлэх" required>
+        <input id="task-title" name="title" type="text" maxlength="180" placeholder="Даалгавраа бичнэ үү" required>
       </label>
+      <div aria-label="Даалгаврын хурдан сонголт" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:-4px;margin-bottom:4px">
+        <button type="button" class="button button-secondary" style="min-height:36px;padding:7px 11px;font-size:13px" onclick="document.getElementById('task-title').value='Дасгал ';document.getElementById('task-title').focus()">Дасгал</button>
+        <button type="button" class="button button-secondary" style="min-height:36px;padding:7px 11px;font-size:13px" onclick="document.getElementById('task-title').value='Хуудас ';document.getElementById('task-title').focus()">Хуудас</button>
+        <button type="button" class="button button-secondary" style="min-height:36px;padding:7px 11px;font-size:13px" onclick="document.getElementById('task-title').value='Мэдээлэл хайх';document.getElementById('task-title').focus()">Мэдээлэл хайх</button>
+        <button type="button" class="button button-secondary" style="min-height:36px;padding:7px 11px;font-size:13px" onclick="document.getElementById('task-title').value='Цээжлэх';document.getElementById('task-title').focus()">Цээжлэх</button>
+      </div>
 
       <div class="form-row">
         <label class="field">Хэзээний?
