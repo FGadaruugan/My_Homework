@@ -5,47 +5,97 @@
   else root.HomeworkModel = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
+
   const KEY = 'my-homework:v1';
-  const SUBJECTS = ['Математик', 'Монгол хэл', 'Уран зохиол', 'Үндэсний бичиг', 'Англи хэл', 'Хими', 'Физик', 'Биологи', 'Газар зүй', 'Нийгэм', 'Түүх', 'Мэдээлэл зүй', 'Дизайн технологи', 'Биеийн тамир', 'Эрүүл мэнд', 'Ёс зүй', 'Сонгон', 'Бусад'];
+  const SUBJECTS = [
+    'Математик', 'Монгол хэл', 'Уран зохиол', 'Үндэсний бичиг', 'Англи хэл',
+    'Хими', 'Физик', 'Биологи', 'Газар зүй', 'Нийгэм', 'Түүх', 'Мэдээлэл зүй',
+    'Дизайн технологи', 'Биеийн тамир', 'Эрүүл мэнд', 'Ёс зүй',
+    'Сонгон · Математик', 'Сонгон · Нийгэм', 'Сонгон · Физик', 'Сонгон · Англи хэл',
+    'Бусад'
+  ];
+  const VALID_SUBJECTS = new Set([...SUBJECTS, 'Сонгон']); // хуучин хадгалсан утгыг эвдэхгүй
+
   function localDate(date = new Date()) {
-    return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+    return [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0')
+    ].join('-');
   }
+
   function validDate(value) {
     if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
     const [y, m, d] = value.split('-').map(Number);
     const date = new Date(Date.UTC(y, m - 1, d));
-    return y >= 2000 && y <= 2100 && date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+    return y >= 2000 && y <= 2100 &&
+      date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
   }
+
   function daysBetween(from, to) {
     if (!validDate(from) || !validDate(to)) throw new Error('Огноо буруу байна.');
     return Math.round((Date.parse(to + 'T00:00:00Z') - Date.parse(from + 'T00:00:00Z')) / 86400000);
   }
+
   function validate(input) {
     const title = typeof input.title === 'string' ? input.title.trim() : '';
     const notes = typeof input.notes === 'string' ? input.notes.trim() : '';
-    if (!SUBJECTS.includes(input.subject)) throw new Error('Хичээлээ сонгоорой.');
+
+    if (!VALID_SUBJECTS.has(input.subject)) throw new Error('Хичээлээ сонгоорой.');
     if (!title || title.length > 180) throw new Error('Хийх зүйлээ 1–180 тэмдэгтээр бичээрэй.');
-    if (!validDate(input.due)) throw new Error('2000–2100 оны хоорондох зөв огноо сонгоорой.');
+    if (!validDate(input.assigned)) throw new Error('“Хэзээний даалгавар вэ?” огноог зөв сонгоорой.');
+    if (!validDate(input.due)) throw new Error('Дуусгах өдрийн огноог зөв сонгоорой.');
+    if (daysBetween(input.assigned, input.due) < 0) throw new Error('Дуусгах өдөр нь даалгавар өгсөн өдрөөс өмнө байж болохгүй.');
     if (notes.length > 2000) throw new Error('Тэмдэглэл 2000 тэмдэгтээс ихгүй байна.');
     if (!['normal', 'high'].includes(input.priority)) throw new Error('Ач холбогдлоо сонгоорой.');
-    return {subject: input.subject, title, due: input.due, priority: input.priority, notes};
+
+    return {
+      subject: input.subject,
+      title,
+      assigned: input.assigned,
+      due: input.due,
+      priority: input.priority,
+      notes
+    };
   }
+
+  function fallbackAssigned(item) {
+    if (validDate(item.assigned)) return item.assigned;
+    if (Number.isFinite(item.createdAt)) return localDate(new Date(item.createdAt));
+    return validDate(item.due) ? item.due : localDate();
+  }
+
   function decode(raw) {
     if (raw === null) return [];
     const data = JSON.parse(raw);
-    if (!data || data.version !== 1 || !Array.isArray(data.tasks) || data.tasks.length > 500) throw new Error('Хадгалсан мэдээллийн бүтэц буруу байна.');
+    if (!data || data.version !== 1 || !Array.isArray(data.tasks) || data.tasks.length > 500) {
+      throw new Error('Хадгалсан мэдээллийн бүтэц буруу байна.');
+    }
+
     const ids = new Set();
     return data.tasks.map(item => {
-      if (!item || typeof item.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(item.id) || ids.has(item.id) || typeof item.completed !== 'boolean' || !Number.isFinite(item.createdAt)) throw new Error('Хадгалсан даалгаврыг уншиж чадсангүй.');
+      if (!item || typeof item.id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(item.id) ||
+          ids.has(item.id) || typeof item.completed !== 'boolean' || !Number.isFinite(item.createdAt)) {
+        throw new Error('Хадгалсан даалгаврыг уншиж чадсангүй.');
+      }
       ids.add(item.id);
-      return {...validate(item), id:item.id, completed:item.completed, createdAt:item.createdAt, completedAt:Number.isFinite(item.completedAt) ? item.completedAt : null};
+      const normalized = {...item, assigned: fallbackAssigned(item)};
+      return {
+        ...validate(normalized),
+        id: item.id,
+        completed: item.completed,
+        createdAt: item.createdAt,
+        completedAt: Number.isFinite(item.completedAt) ? item.completedAt : null
+      };
     });
   }
+
   function encode(tasks) {
-    const raw = JSON.stringify({version:1, tasks});
+    const raw = JSON.stringify({version: 1, tasks});
     decode(raw);
     return raw;
   }
+
   function select(tasks, view, subject, today = localDate()) {
     return tasks.filter(task => {
       if (subject !== 'all' && task.subject !== subject) return false;
@@ -54,15 +104,23 @@
       return view !== 'today' || task.due <= today;
     }).sort((a, b) => {
       if (view === 'done') return (b.completedAt || 0) - (a.completedAt || 0) || b.createdAt - a.createdAt;
-      return a.due.localeCompare(b.due) || Number(b.priority === 'high') - Number(a.priority === 'high') || a.createdAt - b.createdAt;
+      return a.due.localeCompare(b.due) ||
+        Number(b.priority === 'high') - Number(a.priority === 'high') ||
+        a.createdAt - b.createdAt;
     });
   }
+
   function stats(tasks, today = localDate()) {
-    return tasks.reduce((out, t) => {
-      if (t.completed) out.done++;
-      else { out.active++; if (t.due === today) out.today++; if (t.due < today) out.overdue++; }
+    return tasks.reduce((out, task) => {
+      if (task.completed) out.done++;
+      else {
+        out.active++;
+        if (task.due === today) out.today++;
+        if (task.due < today) out.overdue++;
+      }
       return out;
-    }, {active:0, today:0, overdue:0, done:0});
+    }, {active: 0, today: 0, overdue: 0, done: 0});
   }
+
   return {KEY, SUBJECTS, localDate, validDate, daysBetween, validate, decode, encode, select, stats};
 });
