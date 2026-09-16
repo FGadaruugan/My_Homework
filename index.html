@@ -8,8 +8,11 @@
   <title>My Homework — Миний даалгавар</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='17' fill='%233d60e8'/%3E%3Cpath d='M17 18h30v30H17z' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='m24 32 6 6 12-14' fill='none' stroke='%23d4f98a' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./super.css">
   <script defer src="./model.js"></script>
   <script defer src="./app.js"></script>
+  <script defer src="./enhancement-utils.js"></script>
+  <script defer src="./enhancements.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Үндсэн хэсэг рүү</a>
@@ -109,11 +112,13 @@
       <label class="field">Даалгавар
         <input id="task-title" name="title" type="text" maxlength="180" placeholder="Даалгавраа бичнэ үү" required>
       </label>
-      <div aria-label="Даалгаврын хурдан сонголт" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:-4px;margin-bottom:4px">
-        <button type="button" class="button button-secondary" style="min-height:36px;padding:7px 11px;font-size:13px" onclick="document.getElementById('task-title').value='Дасгал ';document.getElementById('task-title').focus()">Дасгал</button>
-        <button type="button" class="button button-secondary" style="min-height:36px;padding:7px 11px;font-size:13px" onclick="document.getElementById('task-title').value='Хуудас ';document.getElementById('task-title').focus()">Хуудас</button>
-        <button type="button" class="button button-secondary" style="min-height:36px;padding:7px 11px;font-size:13px" onclick="document.getElementById('task-title').value='Мэдээлэл хайх';document.getElementById('task-title').focus()">Мэдээлэл хайх</button>
-        <button type="button" class="button button-secondary" style="min-height:36px;padding:7px 11px;font-size:13px" onclick="document.getElementById('task-title').value='Цээжлэх';document.getElementById('task-title').focus()">Цээжлэх</button>
+      <div class="quick-actions" aria-label="Даалгаврын хурдан сонголт">
+        <button type="button" class="quick-chip">Дасгал</button>
+        <button type="button" class="quick-chip">Хуудас</button>
+        <button type="button" class="quick-chip">Мэдээлэл хайх</button>
+        <button type="button" class="quick-chip">Цээжлэх</button>
+        <button type="button" class="quick-chip">Бодлого</button>
+        <button type="button" class="quick-chip">Унших</button>
       </div>
 
       <div class="form-row">
