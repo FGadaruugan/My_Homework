@@ -163,7 +163,7 @@
     });
 
     ensureSearchEmpty(visible);
-    if (searchQuery.trim()) $('list-count').textContent = visible;
+    $('list-count').textContent = visible;
   }
 
   function installKeyboardShortcut() {
