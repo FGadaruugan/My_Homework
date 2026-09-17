@@ -160,6 +160,12 @@
     $('list-count').textContent = visible;
   }
 
+  function installNavLayoutGuard() {
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.style.position = 'relative';
+    });
+  }
+
   function installKeyboardShortcut() {
     document.addEventListener('keydown', event => {
       if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
@@ -187,6 +193,7 @@
     installQuickActions();
     installDateShortcuts();
     installSearch();
+    installNavLayoutGuard();
     installKeyboardShortcut();
     applyEnhancements();
     watchRenders();
