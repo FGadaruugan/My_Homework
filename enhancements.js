@@ -14,11 +14,20 @@
     catch (_) { return []; }
   }
 
+  function ensureSmartSuggestionStyles() {
+    if (document.querySelector('link[data-smart-suggestions]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './smart-suggestions.css';
+    link.dataset.smartSuggestions = 'true';
+    document.head.append(link);
+  }
+
   function installQuickActions() {
     const title = $('task-title');
     if (!title) return;
     const currentWrap = title.closest('.field')?.nextElementSibling;
-    let wrap = currentWrap && currentWrap.getAttribute('aria-label') === 'Даалгаврын хурдан сонголт' ? currentWrap : null;
+    const wrap = currentWrap && currentWrap.getAttribute('aria-label') === 'Даалгаврын хурдан сонголт' ? currentWrap : null;
     if (!wrap) return;
 
     wrap.className = 'quick-actions';
@@ -30,7 +39,7 @@
     });
 
     const wanted = ['Дасгал','Хуудас','Мэдээлэл хайх','Цээжлэх','Бодлого','Унших'];
-    const existing = new Set([...wrap.querySelectorAll('button')].map(b => b.textContent.trim()));
+    const existing = new Set([...wrap.querySelectorAll('button')].map(button => button.textContent.trim()));
     wanted.forEach(label => {
       if (existing.has(label)) return;
       const button = document.createElement('button');
@@ -40,14 +49,91 @@
       wrap.append(button);
     });
 
-    wrap.querySelectorAll('.quick-chip').forEach(button => {
-      button.addEventListener('click', () => {
-        title.value = U.quickText(title.value, button.textContent);
+    const panel = document.createElement('section');
+    panel.id = 'smart-suggestion-panel';
+    panel.className = 'smart-suggestion-panel';
+    panel.hidden = true;
+    panel.setAttribute('aria-label', 'Ухаалаг санал болгох');
+    panel.innerHTML = `
+      <div class="smart-suggestion-head">
+        <div>
+          <span class="smart-suggestion-kicker">УХААЛАГ САНАЛ</span>
+          <strong>Ухаалаг санал болгох</strong>
+        </div>
+        <button type="button" class="smart-suggestion-close" aria-label="Саналыг хаах">×</button>
+      </div>
+      <label class="smart-suggestion-field">
+        <span id="smart-suggestion-label">Нэмэлт мэдээлэл</span>
+        <input id="smart-suggestion-detail" type="text" maxlength="100" autocomplete="off">
+      </label>
+      <div class="smart-suggestion-actions" aria-label="Санал болгох үйлдлүүд"></div>
+      <p class="smart-suggestion-tip">Дугаар эсвэл сэдвээ бичээд дараагийн үйлдлээ сонгоно уу.</p>`;
+    wrap.insertAdjacentElement('afterend', panel);
+
+    const detail = panel.querySelector('#smart-suggestion-detail');
+    const detailLabel = panel.querySelector('#smart-suggestion-label');
+    const actions = panel.querySelector('.smart-suggestion-actions');
+    const close = panel.querySelector('.smart-suggestion-close');
+    let selectedLabel = '';
+
+    function closeComposer() {
+      panel.hidden = true;
+      selectedLabel = '';
+      detail.value = '';
+      wrap.querySelectorAll('.quick-chip').forEach(button => button.classList.remove('is-active'));
+    }
+
+    function applySuggestion(action) {
+      const suggestion = U.buildSmartSuggestion(selectedLabel, detail.value, action);
+      if (!suggestion) {
+        detail.focus();
+        detail.classList.add('needs-value');
+        return;
+      }
+
+      title.value = U.mergeSmartSuggestion(title.value, suggestion);
+      title.dispatchEvent(new Event('input', {bubbles:true}));
+      closeComposer();
+      title.focus();
+      title.setSelectionRange(title.value.length, title.value.length);
+    }
+
+    function openComposer(label, sourceButton) {
+      const preset = U.smartSuggestionPreset(label);
+      if (!preset) {
+        title.value = U.quickText(title.value, label);
         title.dispatchEvent(new Event('input', {bubbles:true}));
-        title.focus();
-        title.setSelectionRange(title.value.length, title.value.length);
+        return;
+      }
+
+      selectedLabel = label;
+      detailLabel.textContent = preset.inputLabel;
+      detail.placeholder = preset.placeholder;
+      detail.value = '';
+      detail.classList.remove('needs-value');
+      actions.replaceChildren();
+
+      preset.actions.forEach(action => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'smart-suggestion-action';
+        button.textContent = action;
+        button.addEventListener('click', () => applySuggestion(action));
+        actions.append(button);
       });
+
+      wrap.querySelectorAll('.quick-chip').forEach(button => button.classList.toggle('is-active', button === sourceButton));
+      panel.hidden = false;
+      detail.focus();
+    }
+
+    wrap.querySelectorAll('.quick-chip').forEach(button => {
+      button.addEventListener('click', () => openComposer(button.textContent.trim(), button));
     });
+
+    detail.addEventListener('input', () => detail.classList.remove('needs-value'));
+    close.addEventListener('click', closeComposer);
+    $('task-dialog')?.addEventListener('close', closeComposer);
   }
 
   function installDateShortcuts() {
@@ -196,6 +282,7 @@
   }
 
   function boot() {
+    ensureSmartSuggestionStyles();
     installQuickActions();
     installDateShortcuts();
     installSearch();

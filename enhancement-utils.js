@@ -5,11 +5,71 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
+  const SMART_SUGGESTIONS = Object.freeze({
+    'Дасгал': Object.freeze({
+      inputLabel: 'Дасгалын дугаар',
+      placeholder: 'Жишээ: 5, 6, 7',
+      actions: Object.freeze(['Хийх', 'Бодох', 'Шалгах', 'Дэвтэрт хийх']),
+      separator: ' '
+    }),
+    'Хуудас': Object.freeze({
+      inputLabel: 'Хуудасны дугаар',
+      placeholder: 'Жишээ: 12–15',
+      actions: Object.freeze(['Унших', 'Тэмдэглэл', 'Цээжлэх', 'Дүгнэх']),
+      separator: ' '
+    }),
+    'Мэдээлэл хайх': Object.freeze({
+      inputLabel: 'Хайх сэдэв',
+      placeholder: 'Жишээ: Нельсон Мандела',
+      actions: Object.freeze(['Эх сурвалж олох', 'Тэмдэглэл', 'Товчлох', 'Дүгнэх']),
+      separator: ': '
+    }),
+    'Цээжлэх': Object.freeze({
+      inputLabel: 'Юуг цээжлэх вэ?',
+      placeholder: 'Жишээ: 20 шинэ үг',
+      actions: Object.freeze(['Давтах', 'Өөрийгөө шалгах', 'Карт хийх', 'Бичиж тогтоох']),
+      separator: ': '
+    }),
+    'Бодлого': Object.freeze({
+      inputLabel: 'Бодлогын дугаар / сэдэв',
+      placeholder: 'Жишээ: 8–11',
+      actions: Object.freeze(['Бодох', 'Шалгах', 'Аргаа бичих', 'Дахин бодох']),
+      separator: ' '
+    }),
+    'Унших': Object.freeze({
+      inputLabel: 'Юу унших вэ?',
+      placeholder: 'Жишээ: §12 эсвэл 24–30-р хуудас',
+      actions: Object.freeze(['Унших', 'Тэмдэглэл', 'Асуулт гаргах', 'Дүгнэх']),
+      separator: ': '
+    })
+  });
+
   function quickText(current, label) {
     const base = String(current || '').trim();
     const prefix = String(label || '').trim();
     if (!prefix) return base;
     return base ? `${base} · ${prefix} ` : `${prefix} `;
+  }
+
+  function smartSuggestionPreset(label) {
+    return SMART_SUGGESTIONS[String(label || '').trim()] || null;
+  }
+
+  function buildSmartSuggestion(label, detail, action) {
+    const name = String(label || '').trim();
+    const preset = smartSuggestionPreset(name);
+    const value = String(detail || '').trim();
+    const nextAction = String(action || '').trim();
+    if (!preset || !value || !nextAction) return '';
+    return `${name}${preset.separator}${value} · ${nextAction}`;
+  }
+
+  function mergeSmartSuggestion(current, suggestion) {
+    const base = String(current || '').trim();
+    const next = String(suggestion || '').trim();
+    if (!next) return base;
+    if (!base || base === next) return next;
+    return `${base} · ${next}`;
   }
 
   function addDays(value, amount) {
@@ -53,5 +113,14 @@
     return haystack.includes(q);
   }
 
-  return {quickText, addDays, shouldShowSearchEmpty, smartDueLabel, matchesTask};
+  return {
+    quickText,
+    smartSuggestionPreset,
+    buildSmartSuggestion,
+    mergeSmartSuggestion,
+    addDays,
+    shouldShowSearchEmpty,
+    smartDueLabel,
+    matchesTask
+  };
 });
