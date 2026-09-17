@@ -5,6 +5,15 @@
   let client = null;
   let observer = null;
 
+  function ensureMobileAuthCss() {
+    if (document.querySelector('link[data-auth-mobile]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './auth-mobile.css';
+    link.dataset.authMobile = 'true';
+    document.head.append(link);
+  }
+
   function utils() {
     return window.HomeworkPasswordRecoveryUtils || window.HomeworkCloudAuthUtils;
   }
@@ -160,6 +169,7 @@
   }
 
   async function boot() {
+    ensureMobileAuthCss();
     client = await waitForClient();
     if (!client) return;
     installForgotButton();
