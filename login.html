@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#18243b">
+  <title>Нэвтрэх · My Homework</title>
+  <link rel="stylesheet" href="./auth.css">
+</head>
+<body class="auth-page">
+  <main class="auth-layout">
+    <section class="auth-card" aria-labelledby="login-title">
+      <a class="auth-brand" href="./login.html"><span class="auth-mark">✓</span><span>myhomework.</span></a>
+      <p class="auth-kicker">MY HOMEWORK ACCOUNT</p>
+      <h1 id="login-title">Тавтай морил!</h1>
+      <p class="auth-subtitle">Нэвтрээд даалгавраа бүх төхөөрөмжөөс үргэлжлүүлээрэй.</p>
+      <form id="authForm" novalidate>
+        <label class="auth-field">Имэйл<input id="email" type="email" autocomplete="email" placeholder="name@example.com" required></label>
+        <label class="auth-field">Нууц үг<input id="password" type="password" autocomplete="current-password" minlength="8" maxlength="72" required></label>
+        <div class="auth-inline"><a id="forgot-password" href="#">Нууц үг мартсан?</a></div>
+        <p class="auth-status" id="status" role="status" aria-live="polite"></p>
+        <button class="auth-primary" id="login-submit" type="submit">Нэвтрэх →</button>
+      </form>
+      <div class="auth-divider">эсвэл</div>
+      <button class="auth-secondary" id="google-login" type="button">Google-ээр үргэлжлүүлэх</button>
+      <p class="auth-links">Шинэ хэрэглэгч үү? <a href="./signup.html">Бүртгэл үүсгэх</a></p>
+    </section>
+  </main>
+  <script src="./firebase-auth-utils.js"></script>
+  <script type="module" src="./login.js"></script>
+</body>
+</html>
