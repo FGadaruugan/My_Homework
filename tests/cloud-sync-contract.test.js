@@ -1,0 +1,10 @@
+const fs = require('fs');
+const assert = require('assert');
+const src = fs.readFileSync('cloud-sync.js', 'utf8');
+const html = fs.readFileSync('index.html', 'utf8');
+for (const token of ["doc(db, 'my_homework', user.uid)", 'getDoc', 'setDoc', 'serverTimestamp', 'requireUser', 'Storage.prototype.setItem']) assert.ok(src.includes(token), `missing ${token}`);
+assert.ok(src.includes("location.replace('./login.html')") || src.includes('requireUser'));
+assert.ok(!src.includes('supabase'));
+assert.ok(html.includes('firebase-auth-utils.js'));
+assert.ok(html.includes('cloud-sync.js'));
+console.log('cloud sync contract passed');
