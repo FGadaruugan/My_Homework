@@ -1,3 +1,7 @@
+.auth-card:has(#auth-name) > .auth-subtitle {
+  display: none !important;
+}
+
 @media (max-width: 600px) {
   html,
   body {
