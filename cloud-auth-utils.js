@@ -26,5 +26,17 @@
     return /^\d{6}$/.test(String(value || '').trim());
   }
 
-  return { normalizeEmail, isGmail, validName, validPassword, validOtp };
+  function oauthRedirectUrl(value){
+    const url = new URL(String(value || ''), 'https://example.invalid/');
+    url.search = '';
+    url.hash = '';
+    return url.href;
+  }
+
+  function preferredDisplayName(user){
+    const meta = user && user.user_metadata ? user.user_metadata : {};
+    return String(meta.full_name || meta.name || meta.display_name || (user && user.email ? user.email.split('@')[0] : '') || 'Хэрэглэгч').trim();
+  }
+
+  return { normalizeEmail, isGmail, validName, validPassword, validOtp, oauthRedirectUrl, preferredDisplayName };
 });
