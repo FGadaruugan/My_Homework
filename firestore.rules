@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // My_Homework ownership rule. Firebase Console дээр Message-ийн
+    // одоо байгаа бусад rules-тэй нийлүүлж publish хийнэ.
+    match /my_homework/{uid} {
+      allow read, create, update, delete: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
