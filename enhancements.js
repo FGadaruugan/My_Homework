@@ -14,13 +14,6 @@
     catch (_) { return []; }
   }
 
-  function addDays(value, amount) {
-    const [y, m, d] = value.split('-').map(Number);
-    const date = new Date(y, m - 1, d, 12);
-    date.setDate(date.getDate() + amount);
-    return M.localDate(date);
-  }
-
   function installQuickActions() {
     const title = $('task-title');
     if (!title) return;
@@ -78,8 +71,8 @@
       button.className = 'date-shortcut';
       button.textContent = label;
       button.addEventListener('click', () => {
-        const base = $('task-assigned').value || M.localDate();
-        due.value = addDays(base, days);
+        due.value = U.addDays(M.localDate(), days);
+        due.dispatchEvent(new Event('change', {bubbles:true}));
         due.focus();
       });
       wrap.append(button);
@@ -120,7 +113,7 @@
     });
   }
 
-  function ensureSearchEmpty(visible) {
+  function ensureSearchEmpty(visible, totalRows) {
     let empty = $('search-empty');
     if (!empty) {
       empty = document.createElement('div');
@@ -129,16 +122,17 @@
       empty.innerHTML = '<strong>Илэрц олдсонгүй</strong><span>Өөр үгээр хайгаад үзээрэй.</span>';
       $('task-list')?.insertAdjacentElement('afterend', empty);
     }
-    empty.hidden = visible !== 0 || !searchQuery.trim();
+    empty.hidden = !U.shouldShowSearchEmpty(totalRows, visible, searchQuery);
   }
 
   function applyEnhancements() {
     const tasks = readTasks();
     const byId = new Map(tasks.map(task => [task.id, task]));
     const today = M.localDate();
+    const rows = [...document.querySelectorAll('#task-list .task-row')];
     let visible = 0;
 
-    document.querySelectorAll('#task-list .task-row').forEach(row => {
+    rows.forEach(row => {
       const task = byId.get(row.dataset.taskId);
       if (!task) return;
 
@@ -162,7 +156,7 @@
       }
     });
 
-    ensureSearchEmpty(visible);
+    ensureSearchEmpty(visible, rows.length);
     $('list-count').textContent = visible;
   }
 
