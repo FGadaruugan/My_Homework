@@ -142,15 +142,23 @@
 
       const meta = row.querySelector('.task-meta');
       if (meta && !task.completed) {
-        let badge = meta.querySelector('.smart-due');
-        if (!badge) {
-          badge = document.createElement('span');
-          badge.className = 'smart-due';
-          meta.append(badge);
-        }
         const info = U.smartDueLabel(today, task.due);
-        badge.textContent = info.label;
-        badge.dataset.tone = info.tone;
+        const diff = M.daysBetween(today, task.due);
+        let badge = meta.querySelector('.smart-due');
+
+        // The main due tag already shows overdue / today / tomorrow.
+        // Keep the extra smart badge only when it adds useful countdown detail.
+        if (diff >= 2) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'smart-due';
+            meta.append(badge);
+          }
+          badge.textContent = info.label;
+          badge.dataset.tone = info.tone;
+        } else {
+          badge?.remove();
+        }
       } else if (meta) {
         meta.querySelector('.smart-due')?.remove();
       }
