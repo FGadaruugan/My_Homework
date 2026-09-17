@@ -14,6 +14,15 @@
     catch (_) { return []; }
   }
 
+  function ensureSmartSuggestionStyles() {
+    if (document.querySelector('link[data-smart-suggestions]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './smart-suggestions.css';
+    link.dataset.smartSuggestions = 'true';
+    document.head.append(link);
+  }
+
   function installQuickActions() {
     const title = $('task-title');
     if (!title) return;
@@ -273,6 +282,7 @@
   }
 
   function boot() {
+    ensureSmartSuggestionStyles();
     installQuickActions();
     installDateShortcuts();
     installSearch();
