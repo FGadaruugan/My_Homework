@@ -1,36 +1,78 @@
 # My Homework
 
-Монгол хэлтэй, утас болон компьютерт тохирсон хувийн гэрийн даалгаврын веб.
+Монгол хэлтэй, утас болон компьютерт тохирсон гэрийн даалгаврын веб.
 
-- Хичээл, хийх зүйл, хугацаа, ач холбогдол, тэмдэглэл нэмэх ба засах
-- Хийж дууссанаа тэмдэглэх, буцааж хийх жагсаалт руу оруулах
+- Хичээл, хийх зүйл, хугацаа нэмэх ба засах
+- Хийж дууссанаа тэмдэглэх
 - Хугацаа хэтэрсэн болон өнөөдрийн даалгаврыг ялгах
-- Хичээлээр шүүх, дууссан даалгавруудаа харах
-- Устгахын өмнө баталгаажуулах, мэдэгдлээс буцааж сэргээх
-- Хөтчийн localStorage-д хадгалах; дахин нээхэд мэдээлэл үлдэнэ
+- Хичээлээр шүүх
+- Firebase account-аар төхөөрөмж хооронд Firestore sync хийх
+- Login, Sign up, Profile нь тусдаа HTML хуудастай
 
 ## GitHub Pages дээр нээх
 
 1. Repository-ийн **Settings → Pages** рүү орно.
 2. **Source → Deploy from a branch** сонгоно.
 3. **Branch → main**, **Folder → / (root)** сонгоод **Save** дарна.
-4. GitHub байршуулж дууссаны дараа `https://FGadaruugan.github.io/My_Homework/` хаягаар нээнэ.
+4. Deploy дууссаны дараа `https://FGadaruugan.github.io/My_Homework/` хаягаар нээнэ.
 
-Албан ёсны заавар: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+## Firebase Authentication
 
-## Хадгалалт
+Энэ төсөл `FGadaruugan/Message` дээр ажиллаж байгаа `badar-uuganlogni` Firebase Web project-ийг reuse хийнэ.
 
-Даалгаврууд зөвхөн тухайн төхөөрөмжийн тухайн хөтөч дээр хадгалагдана. GitHub-д илгээгдэхгүй, төхөөрөмж хооронд синк хийгдэхгүй. Хөтчийн сайтын мэдээллийг цэвэрлэвэл даалгаврууд устна. Нууц горимын мэдээлэл цонх хаахад устаж болно. Сервер, бүртгэл, API түлхүүр шаардлагагүй.
+Firebase Console → **Authentication → Sign-in method**:
+- Email/Password: Enabled
+- Google: Enabled
 
-Хугацааг хэрэглэгчийн төхөөрөмжийн огноогоор тооцно. Хугацаа хэтэрсэн даалгаврыг автоматаар устгахгүй. Дууссан даалгавар тусдаа харагдацад хадгалагдана. Анх нээхэд хоосон жагсаалттай байна.
+Firebase Console → **Authentication → Settings → Authorized domains**:
+- `fgadaruugan.github.io` authorized байх ёстой.
+
+Нэвтрэх бүтэц:
+- `login.html` — email/password, Google login, password reset link
+- `signup.html` — шинэ account
+- `profile.html` — profile update + logout
+- `index.html` — зөвхөн authenticated homework app
+
+6 оронтой OTP/custom SMTP ашиглахгүй.
+
+## Firestore cloud sync
+
+Homework data:
+
+```text
+my_homework/{uid}
+```
+
+`uid` нь Firebase Authentication-ийн current user ID байна. Browser дээр `my-homework:v1` localStorage cache хэвээр ашиглагдах бөгөөд анхны Firebase login дээр remote хоосон байвал local homework Firestore руу seed хийнэ.
+
+Firebase Console → **Firestore Database → Rules** дээр `firestore.rules`-ийн `my_homework/{uid}` rule-ийг Message төслийн одоо байгаа rules-тэй **merge** хийгээд publish хийнэ. Бусад `/users` rules-ийг дарж сольж болохгүй.
+
+Required ownership rule:
+
+```text
+match /my_homework/{uid} {
+  allow read, create, update, delete: if request.auth != null && request.auth.uid == uid;
+}
+```
+
+## Security
+
+`firebase.js` доторх Firebase Web config нь browser client configuration. Firebase Admin SDK private key, service-account JSON, server secret зэрэг нууц credential-ийг repository-д хэзээ ч commit хийхгүй.
+
+Нууц үгийг Firestore эсвэл localStorage-д хадгалахгүй. Firestore authorization нь UI-аар биш Security Rules-аар хамгаалагдана.
 
 ## Файлууд
 
-- `index.html` — хуудасны бүтэц
-- `styles.css` — бүх хэмжээний дэлгэцийн загвар, хэвлэх загвар
-- `model.js` — өгөгдөл, огноо, эрэмбэ, шалгалтын логик
-- `app.js` — интерфэйс болон хадгалалтын үйлдлүүд
+- `index.html` — homework app
+- `login.html` — login
+- `signup.html` — sign up
+- `profile.html` — profile
+- `firebase.js` — Firebase client initialization
+- `auth.js` — Firebase Authentication service
+- `cloud-sync.js` — Firestore homework sync
+- `firebase-auth-utils.js` — validation/sync helper functions
+- `firestore.rules` — My_Homework ownership rule reference
+- `model.js` — homework data model
+- `app.js` — homework UI logic
 
-Build болон npm install хийх шаардлагагүй. `index.html`-ийг браузерт шууд нээх эсвэл VS Code Live Server ашиглана. Байнгын ашиглалтад GitHub Pages хаягийг ашиглаарай: local file болон веб хаягийн хадгалалт тусдаа байдаг.
-
-WebMCP дэмждэг хөтөч дээр даалгаврын жагсаалтыг унших болон шинэ даалгаврын маягтыг нээх нэмэлт интерфэйс автоматаар бүртгэгдэнэ. Даалгаврыг зөвхөн харагдаж буй маягтын Хадгалах товчоор нэмнэ.
+Build эсвэл npm install шаардлагагүй. GitHub Pages дээр static байдлаар ажиллана.
