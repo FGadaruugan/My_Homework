@@ -1,48 +1,78 @@
 # My Homework
 
-My Homework is a responsive homework tracker for the 10V class workflow. It runs as a static GitHub Pages site and uses Firebase Authentication + Firestore for account-based cloud storage.
+Монгол хэлтэй, утас болон компьютерт тохирсон гэрийн даалгаврын веб.
 
-## Smart Refresh update
+- Хичээл, хийх зүйл, хугацаа нэмэх ба засах
+- Хийж дууссанаа тэмдэглэх
+- Хугацаа хэтэрсэн болон өнөөдрийн даалгаврыг ялгах
+- Хичээлээр шүүх
+- Firebase account-аар төхөөрөмж хооронд Firestore sync хийх
+- Login, Sign up, Profile нь тусдаа HTML хуудастай
 
-The **Ухаалаг санал болгох** composer improves quick homework entry. Choose a type such as `Хуудас`, `Дасгал`, `Мэдээлэл хайх`, `Цээжлэх`, `Бодлого`, or `Унших`, enter the relevant page/problem/topic, then choose a suggested follow-up action. The app builds a clean task title automatically.
+## GitHub Pages дээр нээх
 
-Examples:
-- `Хуудас 12–15 · Унших`
-- `Дасгал 5, 6, 7 · Бодох`
-- `Мэдээлэл хайх: Нельсон Мандела · Тэмдэглэл`
+1. Repository-ийн **Settings → Pages** рүү орно.
+2. **Source → Deploy from a branch** сонгоно.
+3. **Branch → main**, **Folder → / (root)** сонгоод **Save** дарна.
+4. Deploy дууссаны дараа `https://FGadaruugan.github.io/My_Homework/` хаягаар нээнэ.
 
-The feature logic is split between `enhancement-utils.js`, `enhancements.js`, and `smart-suggestions.css` so the presets, UI controller, and styles remain easy to understand.
+## Firebase Authentication
 
-## Firebase setup
+Энэ төсөл `FGadaruugan/Message` дээр ажиллаж байгаа `badar-uuganlogni` Firebase Web project-ийг reuse хийнэ.
 
-This project reuses the Firebase web project used by Message, while My Homework data is stored separately under `my_homework/{uid}`.
+Firebase Console → **Authentication → Sign-in method**:
+- Email/Password: Enabled
+- Google: Enabled
 
-Enable these Authentication providers in Firebase Console:
-- Email/Password
-- Google
+Firebase Console → **Authentication → Settings → Authorized domains**:
+- `fgadaruugan.github.io` authorized байх ёстой.
 
-Add your GitHub Pages domain to Authentication → Settings → Authorized domains.
+Нэвтрэх бүтэц:
+- `login.html` — email/password, Google login, password reset link
+- `signup.html` — шинэ account
+- `profile.html` — profile update + logout
+- `index.html` — зөвхөн authenticated homework app
 
-Merge the My Homework Firestore rule into the Firebase project's existing rules without deleting unrelated Message rules:
+6 оронтой OTP/custom SMTP ашиглахгүй.
+
+## Firestore cloud sync
+
+Homework data:
+
+```text
+my_homework/{uid}
+```
+
+`uid` нь Firebase Authentication-ийн current user ID байна. Browser дээр `my-homework:v1` localStorage cache хэвээр ашиглагдах бөгөөд анхны Firebase login дээр remote хоосон байвал local homework Firestore руу seed хийнэ.
+
+Firebase Console → **Firestore Database → Rules** дээр `firestore.rules`-ийн `my_homework/{uid}` rule-ийг Message төслийн одоо байгаа rules-тэй **merge** хийгээд publish хийнэ. Бусад `/users` rules-ийг дарж сольж болохгүй.
+
+Required ownership rule:
 
 ```text
 match /my_homework/{uid} {
-  allow read, create, update, delete:
-    if request.auth != null && request.auth.uid == uid;
+  allow read, create, update, delete: if request.auth != null && request.auth.uid == uid;
 }
 ```
 
-## Main pages
+## Security
 
-- `index.html` — homework dashboard
-- `login.html` — sign in, Google sign in, password reset
-- `signup.html` — create account
-- `profile.html` — profile and sign out
+`firebase.js` доторх Firebase Web config нь browser client configuration. Firebase Admin SDK private key, service-account JSON, server secret зэрэг нууц credential-ийг repository-д хэзээ ч commit хийхгүй.
 
-## Storage
+Нууц үгийг Firestore эсвэл localStorage-д хадгалахгүй. Firestore authorization нь UI-аар биш Security Rules-аар хамгаалагдана.
 
-Homework remains compatible with the existing localStorage model and is synchronized to the signed-in user's Firestore document. On first sync, existing local homework can be uploaded when the remote account has no homework yet.
+## Файлууд
 
-## Deployment
+- `index.html` — homework app
+- `login.html` — login
+- `signup.html` — sign up
+- `profile.html` — profile
+- `firebase.js` — Firebase client initialization
+- `auth.js` — Firebase Authentication service
+- `cloud-sync.js` — Firestore homework sync
+- `firebase-auth-utils.js` — validation/sync helper functions
+- `firestore.rules` — My_Homework ownership rule reference
+- `model.js` — homework data model
+- `app.js` — homework UI logic
 
-GitHub Pages can deploy directly from `main` / repository root. No build step is required.
+Build эсвэл npm install шаардлагагүй. GitHub Pages дээр static байдлаар ажиллана.
