@@ -1,0 +1,14 @@
+const fs = require('fs');
+const assert = require('assert');
+const html = fs.readFileSync('profile.html', 'utf8');
+const js = fs.readFileSync('profile.js', 'utf8');
+assert.ok(html.includes('id="profile-name"'));
+assert.ok(html.includes('id="profile-email"'));
+assert.ok(html.includes('id="profile-created"'));
+assert.ok(html.includes('id="profile-save"'));
+assert.ok(html.includes('id="profile-logout"'));
+assert.ok(js.includes('requireUser'));
+assert.ok(js.includes('updateDisplayName'));
+assert.ok(js.includes('logout'));
+assert.ok(!html.toLowerCase().includes('password'));
+console.log('profile page contract passed');
