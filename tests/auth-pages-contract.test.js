@@ -1,0 +1,17 @@
+const fs = require('fs');
+const assert = require('assert');
+const login = fs.readFileSync('login.html', 'utf8');
+const signup = fs.readFileSync('signup.html', 'utf8');
+assert.ok(login.includes('id="authForm"'));
+assert.ok(login.includes('id="google-login"'));
+assert.ok(login.includes('id="forgot-password"'));
+assert.ok(login.includes('href="./signup.html"'));
+assert.ok(login.includes('src="./login.js"'));
+assert.ok(signup.includes('id="signupForm"'));
+assert.ok(signup.includes('id="display-name"'));
+assert.ok(signup.includes('id="password-confirm"'));
+assert.ok(signup.includes('href="./login.html"'));
+assert.ok(signup.includes('src="./signup.js"'));
+assert.ok(!login.includes('6 оронтой'));
+assert.ok(!signup.includes('6 оронтой'));
+console.log('auth pages contract passed');
