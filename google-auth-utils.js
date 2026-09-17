@@ -21,9 +21,9 @@
   function googleDisplayName(user) {
     const meta = user?.user_metadata || {};
     return String(
+      meta.display_name ||
       meta.full_name ||
       meta.name ||
-      meta.display_name ||
       user?.email?.split('@')[0] ||
       'Хэрэглэгч'
     ).trim();
