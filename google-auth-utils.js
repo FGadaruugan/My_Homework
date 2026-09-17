@@ -11,6 +11,13 @@
     return origin + pathname;
   }
 
+  function googleOAuthOptions(locationLike) {
+    return {
+      provider: 'google',
+      options: { redirectTo: cleanRedirectUrl(locationLike) },
+    };
+  }
+
   function googleDisplayName(user) {
     const meta = user?.user_metadata || {};
     return String(
@@ -22,5 +29,5 @@
     ).trim();
   }
 
-  return { cleanRedirectUrl, googleDisplayName };
+  return { cleanRedirectUrl, googleOAuthOptions, googleDisplayName };
 });
