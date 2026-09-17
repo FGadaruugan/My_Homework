@@ -61,7 +61,10 @@
 
   function fallbackAssigned(item) {
     if (validDate(item.assigned)) return item.assigned;
-    if (Number.isFinite(item.createdAt)) return localDate(new Date(item.createdAt));
+    if (Number.isFinite(item.createdAt)) {
+      const created = localDate(new Date(item.createdAt));
+      return validDate(item.due) && item.due < created ? item.due : created;
+    }
     return validDate(item.due) ? item.due : localDate();
   }
 
