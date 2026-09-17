@@ -5,6 +5,10 @@ assert.strictEqual(
   U.cleanRedirectUrl({ origin: 'https://fgadaruugan.github.io', pathname: '/My_Homework/', search: '?code=abc', hash: '#access_token=xyz' }),
   'https://fgadaruugan.github.io/My_Homework/'
 );
+assert.deepStrictEqual(
+  U.googleOAuthOptions({ origin: 'https://fgadaruugan.github.io', pathname: '/My_Homework/', search: '?x=1', hash: '#y=2' }),
+  { provider: 'google', options: { redirectTo: 'https://fgadaruugan.github.io/My_Homework/' } }
+);
 assert.strictEqual(
   U.googleDisplayName({ user_metadata: { full_name: 'Google Name', name: 'Fallback Name', display_name: 'Old Name' }, email: 'student@gmail.com' }),
   'Google Name'
