@@ -9,41 +9,6 @@
   let searchQuery = '';
   let observer;
 
-  function loadCloudAuth() {
-    if (document.querySelector('script[data-cloud-auth]')) return;
-    const script = document.createElement('script');
-    script.src = './cloud-auth.js';
-    script.dataset.cloudAuth = 'true';
-    document.head.append(script);
-  }
-
-  function loadPasswordRecovery() {
-    const loadMain = () => {
-      if (document.querySelector('script[data-password-recovery]')) return;
-      const script = document.createElement('script');
-      script.src = './password-recovery.js';
-      script.dataset.passwordRecovery = 'true';
-      document.head.append(script);
-    };
-
-    if (window.HomeworkPasswordRecoveryUtils) {
-      loadMain();
-      return;
-    }
-
-    const existing = document.querySelector('script[data-password-recovery-utils]');
-    if (existing) {
-      existing.addEventListener('load', loadMain, { once: true });
-      return;
-    }
-
-    const utilsScript = document.createElement('script');
-    utilsScript.src = './password-recovery-utils.js';
-    utilsScript.dataset.passwordRecoveryUtils = 'true';
-    utilsScript.addEventListener('load', loadMain, { once: true });
-    document.head.append(utilsScript);
-  }
-
   function readTasks() {
     try { return M.decode(localStorage.getItem(M.KEY)); }
     catch (_) { return []; }
@@ -231,8 +196,6 @@
   }
 
   function boot() {
-    loadCloudAuth();
-    loadPasswordRecovery();
     installQuickActions();
     installDateShortcuts();
     installSearch();
