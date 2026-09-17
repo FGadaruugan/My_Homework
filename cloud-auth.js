@@ -10,6 +10,7 @@
   if (!M) return;
 
   let U = window.HomeworkCloudAuthUtils;
+  let G = window.HomeworkGoogleAuthUtils;
   let client;
   let activeUser = null;
   let cloudReady = false;
@@ -17,11 +18,24 @@
   let originalSetItem = null;
 
   async function ensureUtils() {
-    if (U) return U;
-    await import('./cloud-auth-utils.js');
-    U = window.HomeworkCloudAuthUtils;
-    if (!U) throw new Error('Auth utility ачаалагдсангүй.');
-    return U;
+    if (!U) {
+      await import('./cloud-auth-utils.js');
+      U = window.HomeworkCloudAuthUtils;
+    }
+    if (!G) {
+      await import('./google-auth-utils.js');
+      G = window.HomeworkGoogleAuthUtils;
+    }
+    if (!U || !G) throw new Error('Auth utility ачаалагдсангүй.');
+  }
+
+  function ensureMobileAuthCss() {
+    if (document.querySelector('link[data-auth-mobile]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './auth-mobile.css';
+    link.dataset.authMobile = 'true';
+    document.head.append(link);
   }
 
   function addStyles() {
@@ -38,21 +52,28 @@
       .auth-kicker{font-size:11px;letter-spacing:1.4px;font-weight:800;color:#748096;margin-bottom:7px}
       .auth-card h1{font-size:28px;line-height:1.2;margin:0;letter-spacing:-.8px}
       .auth-subtitle{color:#748096;font-size:14px;line-height:1.7;margin:9px 0 22px}
-      .auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#eef2f8;padding:5px;border-radius:14px;margin-bottom:20px}
-      .auth-tab{border:0;background:transparent;border-radius:10px;padding:10px 12px;font-weight:750;color:#667085;cursor:pointer}
-      .auth-tab.active{background:#fff;color:#2f4dc5;box-shadow:0 4px 14px rgba(29,43,75,.08)}
       .auth-field{display:block;margin-top:14px;font-size:13px;font-weight:700;color:#45536b}
       .auth-field input{width:100%;box-sizing:border-box;margin-top:7px;min-height:50px;border:1px solid #dbe2ee;border-radius:13px;padding:12px 14px;background:#f9fbff;color:#18233a;font:inherit;font-size:16px;outline:none}
       .auth-field input:focus{background:#fff;border-color:#8ca3ff;box-shadow:0 0 0 4px rgba(67,97,238,.10)}
-      .auth-primary,.auth-secondary{width:100%;min-height:50px;border:0;border-radius:13px;margin-top:20px;font:inherit;font-weight:800;cursor:pointer}
+      .auth-primary,.auth-secondary,.auth-google{width:100%;min-height:50px;border:0;border-radius:13px;margin-top:14px;font:inherit;font-weight:800;cursor:pointer}
       .auth-primary{color:#fff;background:linear-gradient(135deg,#4361ee,#5f7cff);box-shadow:0 12px 28px rgba(67,97,238,.22)}
-      .auth-primary:disabled,.auth-secondary:disabled{opacity:.65;cursor:wait}
-      .auth-secondary{background:#eef2f8;color:#45536b;margin-top:10px}
+      .auth-secondary{background:#eef2f8;color:#45536b}
+      .auth-google{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#202124;border:1px solid #d9dce1;box-shadow:0 7px 22px rgba(29,43,75,.08);margin-top:4px}
+      .auth-google:hover{background:#f8f9fa}
+      .auth-google:focus-visible,.auth-primary:focus-visible,.auth-secondary:focus-visible{outline:3px solid rgba(67,97,238,.22);outline-offset:2px}
+      .auth-google-mark{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:16px;color:#4285f4;background:#fff}
+      .auth-primary:disabled,.auth-secondary:disabled,.auth-google:disabled{opacity:.65;cursor:wait}
       .auth-error,.auth-success{margin-top:13px;padding:10px 12px;border-radius:11px;font-size:13px;line-height:1.55}
       .auth-error{background:#fff0f3;color:#ae3b52}.auth-success{background:#eefaf5;color:#25795c}
       .auth-note{margin-top:14px;color:#7a869b;font-size:12px;line-height:1.65;text-align:center}
       .auth-loading{text-align:center;padding:18px 0;color:#748096}
-      .otp-wrap{display:flex;gap:8px;margin-top:8px}.otp-wrap input{text-align:center;font-size:25px;font-weight:850;letter-spacing:8px;font-variant-numeric:tabular-nums}
+      .auth-divider{display:flex;align-items:center;gap:10px;margin:18px 0 4px;color:#98a2b3;font-size:11px;font-weight:800}
+      .auth-divider::before,.auth-divider::after{content:"";height:1px;background:#e4e8ef;flex:1}
+      .auth-legacy{margin-top:12px;border:1px solid #e1e6ef;border-radius:14px;background:#fafbfe;overflow:hidden}
+      .auth-legacy summary{cursor:pointer;list-style:none;padding:13px 14px;font-size:12px;font-weight:800;color:#5b6679}
+      .auth-legacy summary::-webkit-details-marker{display:none}
+      .auth-legacy[open] summary{border-bottom:1px solid #e6eaf1;background:#f5f7fb}
+      .auth-legacy-inner{padding:0 14px 14px}
       .account-tools{display:flex;align-items:center;gap:8px;margin-left:12px}
       .account-profile{border:1px solid #dfe5f0;background:#fff;color:#4b5870;border-radius:999px;padding:6px 10px 6px 6px;display:flex;align-items:center;gap:8px;font:inherit;font-size:12px;font-weight:750;cursor:pointer;max-width:210px}
       .account-avatar{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#4361ee,#6e86ff);color:#fff;font-size:12px;font-weight:850;flex:none}
@@ -83,6 +104,83 @@
     gate().innerHTML = `<div class="auth-card"><div class="auth-brand"><span class="auth-logo">✓</span><span>myhomework.</span></div><div class="auth-loading">${text}</div></div>`;
   }
 
+  function setAuthError(message) {
+    const error = document.getElementById('auth-error');
+    if (!error) return;
+    error.textContent = message;
+    error.hidden = false;
+  }
+
+  function setBusy(form, busy) {
+    form?.querySelectorAll('button,input').forEach(el => { el.disabled = busy; });
+  }
+
+  function oauthErrorFromUrl() {
+    const query = new URLSearchParams(location.search);
+    const hash = new URLSearchParams(String(location.hash || '').replace(/^#/, ''));
+    return query.get('error_description') || hash.get('error_description') || query.get('error') || hash.get('error') || '';
+  }
+
+  async function handleGoogleLogin(event) {
+    const button = event.currentTarget;
+    button.disabled = true;
+    const { error } = await client.auth.signInWithOAuth(G.googleOAuthOptions(window.location));
+    if (error) {
+      button.disabled = false;
+      setAuthError(error.message?.includes('provider') ? 'Google нэвтрэлт Supabase дээр идэвхжээгүй байна.' : 'Google нэвтрэлтийг эхлүүлж чадсангүй.');
+    }
+  }
+
+  function renderAuth(presetEmail = '') {
+    document.body.classList.add('auth-locked');
+    gate().innerHTML = `
+      <div class="auth-card">
+        <div class="auth-brand"><span class="auth-logo">✓</span><span>myhomework.</span></div>
+        <p class="auth-kicker">MY HOMEWORK ACCOUNT</p>
+        <h1>Нэвтрэх</h1>
+        <p class="auth-subtitle">Google account-аараа нэвтэрч, даалгавраа бүх төхөөрөмжөөс синк хийнэ.</p>
+        <button class="auth-google" id="auth-google" type="button"><span class="auth-google-mark">G</span><span>Google-ээр үргэлжлүүлэх</span></button>
+        <p class="auth-error" id="auth-error" role="alert" hidden></p>
+        <div class="auth-divider"><span>ЭСВЭЛ</span></div>
+        <details class="auth-legacy">
+          <summary>Хуучин Gmail + нууц үгээр нэвтрэх</summary>
+          <div class="auth-legacy-inner">
+            <form id="auth-form" autocomplete="on">
+              <label class="auth-field">Gmail<input id="auth-email" type="email" autocomplete="email" inputmode="email" placeholder="example@gmail.com" required></label>
+              <label class="auth-field">Нууц үг<input id="auth-password" type="password" autocomplete="current-password" minlength="8" maxlength="72" placeholder="8-аас дээш тэмдэгт" required></label>
+              <button class="auth-primary" type="submit">Нэвтрэх</button>
+            </form>
+          </div>
+        </details>
+        <p class="auth-note">Шинэ хэрэглэгч бол Google товчийг ашиглахад account автоматаар үүснэ. Нууц үг болон 6 оронтой signup код шаардахгүй.</p>
+      </div>`;
+
+    const emailInput = document.getElementById('auth-email');
+    if (emailInput && presetEmail) emailInput.value = presetEmail;
+    document.getElementById('auth-google').addEventListener('click', handleGoogleLogin);
+    document.getElementById('auth-form').addEventListener('submit', handleLogin);
+
+    const oauthError = oauthErrorFromUrl();
+    if (oauthError) setAuthError('Google нэвтрэлт амжилтгүй боллоо. Дахин оролдоно уу.');
+  }
+
+  async function handleLogin(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const email = U.normalizeEmail(document.getElementById('auth-email').value);
+    const password = document.getElementById('auth-password').value;
+    if (!U.isGmail(email)) return setAuthError('Зөв @gmail.com хаяг оруулна уу.');
+    if (!U.validPassword(password)) return setAuthError('Нууц үг 8–72 тэмдэгт байна.');
+
+    setBusy(form, true);
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    if (error) {
+      setBusy(form, false);
+      return setAuthError('Gmail эсвэл нууц үг буруу байна. Google товчоор нэвтрэхийг бас ашиглаж болно.');
+    }
+    location.reload();
+  }
+
   function canonicalRaw(value) {
     try {
       const raw = typeof value === 'string' ? value : JSON.stringify(value);
@@ -98,7 +196,7 @@
   }
 
   function displayName(user) {
-    return String(user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Хэрэглэгч').trim();
+    return G.googleDisplayName(user);
   }
 
   function initialFor(user) {
@@ -109,152 +207,6 @@
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return '—';
     return new Intl.DateTimeFormat('mn-MN', {year:'numeric', month:'short', day:'numeric'}).format(date);
-  }
-
-  function setAuthError(message) {
-    const error = document.getElementById('auth-error');
-    if (!error) return;
-    error.textContent = message;
-    error.hidden = false;
-  }
-
-  function setAuthSuccess(message) {
-    const info = document.getElementById('auth-success');
-    if (!info) return;
-    info.textContent = message;
-    info.hidden = false;
-  }
-
-  function setBusy(form, busy) {
-    form?.querySelectorAll('button,input').forEach(el => { el.disabled = busy; });
-  }
-
-  function renderAuth(mode = 'login', presetEmail = '') {
-    document.body.classList.add('auth-locked');
-    const isLogin = mode === 'login';
-    gate().innerHTML = `
-      <div class="auth-card">
-        <div class="auth-brand"><span class="auth-logo">✓</span><span>myhomework.</span></div>
-        <p class="auth-kicker">MY HOMEWORK ACCOUNT</p>
-        <h1>${isLogin ? 'Нэвтрэх' : 'Бүртгүүлэх'}</h1>
-        <p class="auth-subtitle">${isLogin ? 'Gmail болон нууц үгээрээ нэвтэрч, даалгавраа бүх төхөөрөмжөөс хараарай.' : 'Нэг Gmail = нэг account. Бүртгүүлсний дараа Gmail-д ирсэн 6 оронтой кодоор баталгаажуулна.'}</p>
-        <div class="auth-tabs">
-          <button type="button" class="auth-tab ${isLogin ? 'active' : ''}" data-auth-mode="login">Нэвтрэх</button>
-          <button type="button" class="auth-tab ${!isLogin ? 'active' : ''}" data-auth-mode="register">Бүртгүүлэх</button>
-        </div>
-        <form id="auth-form" autocomplete="on">
-          ${isLogin ? '' : '<label class="auth-field">Нэр<input id="auth-name" type="text" autocomplete="name" minlength="2" maxlength="60" placeholder="Таны нэр" required></label>'}
-          <label class="auth-field">Gmail<input id="auth-email" type="email" autocomplete="email" inputmode="email" placeholder="example@gmail.com" required></label>
-          <label class="auth-field">Нууц үг<input id="auth-password" type="password" autocomplete="${isLogin ? 'current-password' : 'new-password'}" minlength="8" maxlength="72" placeholder="8-аас дээш тэмдэгт" required></label>
-          ${isLogin ? '' : '<label class="auth-field">Нууц үг давтах<input id="auth-password2" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>'}
-          <p class="auth-error" id="auth-error" role="alert" hidden></p>
-          <button class="auth-primary" type="submit">${isLogin ? 'Нэвтрэх' : 'Бүртгүүлэх'}</button>
-        </form>
-        <p class="auth-note">Нууц үгээ бусдад бүү өг. Account нь Gmail баталгаажсаны дараа ашиглагдана.</p>
-      </div>`;
-
-    const emailInput = document.getElementById('auth-email');
-    if (emailInput && presetEmail) emailInput.value = presetEmail;
-
-    gate().querySelectorAll('[data-auth-mode]').forEach(button => {
-      button.addEventListener('click', () => renderAuth(button.dataset.authMode, emailInput?.value || presetEmail));
-    });
-    document.getElementById('auth-form').addEventListener('submit', isLogin ? handleLogin : handleRegister);
-  }
-
-  function renderVerify(email) {
-    document.body.classList.add('auth-locked');
-    gate().innerHTML = `
-      <div class="auth-card">
-        <div class="auth-brand"><span class="auth-logo">✉</span><span>myhomework.</span></div>
-        <p class="auth-kicker">GMAIL БАТАЛГААЖУУЛАЛТ</p>
-        <h1>6 оронтой код</h1>
-        <p class="auth-subtitle">Таны Gmail рүү баталгаажуулах код илгээлээ. Inbox болон Spam хэсгээ шалгаарай.</p>
-        <form id="verify-form">
-          <label class="auth-field">Баталгаажуулах код<div class="otp-wrap"><input id="auth-otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required></div></label>
-          <p class="auth-error" id="auth-error" role="alert" hidden></p>
-          <p class="auth-success" id="auth-success" hidden></p>
-          <button class="auth-primary" type="submit">Код баталгаажуулах</button>
-          <button class="auth-secondary" id="resend-code" type="button">Код дахин илгээх</button>
-          <button class="auth-secondary" id="back-login" type="button">Нэвтрэх хэсэг рүү</button>
-        </form>
-        <p class="auth-note" id="verify-email"></p>
-      </div>`;
-    document.getElementById('verify-email').textContent = email;
-    document.getElementById('verify-form').addEventListener('submit', event => handleVerify(event, email));
-    document.getElementById('back-login').addEventListener('click', () => renderAuth('login', email));
-    document.getElementById('resend-code').addEventListener('click', async event => {
-      const button = event.currentTarget;
-      button.disabled = true;
-      const { error } = await client.auth.resend({ type: 'signup', email });
-      button.disabled = false;
-      if (error) return setAuthError('Код дахин илгээж чадсангүй. Түр хүлээгээд дахин оролдоно уу.');
-      setAuthSuccess('Шинэ код илгээлээ.');
-    });
-  }
-
-  async function handleLogin(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const email = U.normalizeEmail(document.getElementById('auth-email').value);
-    const password = document.getElementById('auth-password').value;
-    if (!U.isGmail(email)) return setAuthError('Зөв @gmail.com хаяг оруулна уу.');
-    if (!U.validPassword(password)) return setAuthError('Нууц үг 8–72 тэмдэгт байна.');
-
-    setBusy(form, true);
-    const { error } = await client.auth.signInWithPassword({ email, password });
-    if (error) {
-      setBusy(form, false);
-      return setAuthError('Gmail эсвэл нууц үг буруу, эсвэл Gmail баталгаажаагүй байна.');
-    }
-    location.reload();
-  }
-
-  async function handleRegister(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const name = document.getElementById('auth-name').value.trim();
-    const email = U.normalizeEmail(document.getElementById('auth-email').value);
-    const password = document.getElementById('auth-password').value;
-    const password2 = document.getElementById('auth-password2').value;
-
-    if (!U.validName(name)) return setAuthError('Нэр хамгийн багадаа 2 тэмдэгт байна.');
-    if (!U.isGmail(email)) return setAuthError('Зөв @gmail.com хаяг оруулна уу.');
-    if (!U.validPassword(password)) return setAuthError('Нууц үг 8–72 тэмдэгт байна.');
-    if (password !== password2) return setAuthError('Нууц үгүүд таарахгүй байна.');
-
-    setBusy(form, true);
-    const { data, error } = await client.auth.signUp({
-      email,
-      password,
-      options: { data: { display_name: name } },
-    });
-    setBusy(form, false);
-
-    if (error) {
-      return setAuthError(error.status === 429 ? 'Хэт олон оролдлого хийсэн байна. Түр хүлээгээд дахин оролдоно уу.' : 'Бүртгэл үүсгэж чадсангүй. Gmail өмнө бүртгэлтэй эсэхийг шалгана уу.');
-    }
-
-    if (data?.session?.user) {
-      location.reload();
-      return;
-    }
-    renderVerify(email);
-  }
-
-  async function handleVerify(event, email) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const token = document.getElementById('auth-otp').value.trim();
-    if (!U.validOtp(token)) return setAuthError('6 оронтой код оруулна уу.');
-
-    setBusy(form, true);
-    const { data, error } = await client.auth.verifyOtp({ email, token, type: 'email' });
-    if (error || !data?.session) {
-      setBusy(form, false);
-      return setAuthError('Код буруу эсвэл хугацаа дууссан байна.');
-    }
-    location.reload();
   }
 
   async function getCloudRow(user) {
@@ -271,7 +223,6 @@
     if (!row) {
       const { error } = await client.from('homework_sync').insert({
         user_id: user.id,
-        public_id: user.id,
         data: JSON.parse(localRaw),
         updated_at: new Date().toISOString(),
       });
@@ -285,7 +236,10 @@
 
     if (!remoteHasTasks && localHasTasks) {
       if (!localStorage.getItem(BACKUP_KEY)) localStorage.setItem(BACKUP_KEY, localRaw);
-      const { error } = await client.from('homework_sync').update({ data: JSON.parse(localRaw), updated_at: new Date().toISOString() }).eq('user_id', user.id);
+      const { error } = await client.from('homework_sync').update({
+        data: JSON.parse(localRaw),
+        updated_at: new Date().toISOString(),
+      }).eq('user_id', user.id);
       if (error) throw error;
       return false;
     }
@@ -351,7 +305,7 @@
         </div>
         <label class="auth-field">Нэр<input id="profile-name" type="text" minlength="2" maxlength="60"></label>
         <label class="auth-field">Gmail<input id="profile-gmail" type="email" disabled></label>
-        <div class="profile-meta"><div><span>GMAIL</span><strong>Баталгаажсан ✓</strong></div><div><span>БҮРТГҮҮЛСЭН</span><strong id="profile-created"></strong></div></div>
+        <div class="profile-meta"><div><span>ACCOUNT</span><strong>Баталгаажсан ✓</strong></div><div><span>БҮРТГҮҮЛСЭН</span><strong id="profile-created"></strong></div></div>
         <div class="profile-actions"><button type="button" class="profile-save" id="profile-save">Нэр хадгалах</button><button type="button" class="profile-logout" id="profile-logout">Гарах</button></div>
         <div class="profile-status" id="profile-status">Cloud sync идэвхтэй.</div>
       </div>`;
@@ -400,9 +354,9 @@
     document.getElementById('account-profile').addEventListener('click', openProfile);
 
     const note = document.querySelector('.local-note p');
-    if (note) note.innerHTML = 'Cloud-д хадгалагдана.<br>Gmail account-аараа бусад төхөөрөмжөөс нэвтэрнэ.';
+    if (note) note.innerHTML = 'Cloud-д хадгалагдана.<br>Google/Gmail account-аараа бусад төхөөрөмжөөс нэвтэрнэ.';
     const footer = document.querySelector('.page-footer span:last-child');
-    if (footer) footer.textContent = 'Cloud sync идэвхтэй · Gmail account';
+    if (footer) footer.textContent = 'Cloud sync идэвхтэй · Google account';
   }
 
   function unlockApp() {
@@ -410,26 +364,37 @@
     document.body.classList.remove('auth-locked');
   }
 
+  function cleanOAuthUrlIfNeeded() {
+    const hasAuthArtifacts = /(?:^|[?#&])(access_token|refresh_token|code|error|error_description)=/i.test(location.href);
+    if (!hasAuthArtifacts) return;
+    history.replaceState({}, document.title, G.cleanRedirectUrl(location));
+  }
+
   async function boot() {
+    ensureMobileAuthCss();
     addStyles();
     showLoading();
     try {
       await ensureUtils();
       const mod = await import(SUPABASE_JS);
       client = mod.createClient(SUPABASE_URL, SUPABASE_KEY, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
       });
       window.HomeworkCloudClient = client;
 
-      const { data, error } = await client.auth.getUser();
+      const { data: sessionData } = await client.auth.getSession();
+      const sessionUser = sessionData?.session?.user || null;
+      const { data, error } = sessionUser ? await client.auth.getUser() : { data: { user: null }, error: null };
       const user = !error ? data?.user : null;
-      if (!user) return renderAuth('login');
+      if (!user) return renderAuth();
 
       if (!U.isGmail(user.email)) {
         await client.auth.signOut();
-        return renderAuth('register');
+        renderAuth();
+        return setAuthError('Зөвхөн @gmail.com Google account ашиглана уу.');
       }
 
+      cleanOAuthUrlIfNeeded();
       activeUser = user;
       const needsReload = await ensureCloudData(activeUser);
       if (needsReload) return location.reload();
