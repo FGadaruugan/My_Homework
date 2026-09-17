@@ -12,6 +12,23 @@
     return base ? `${base} · ${prefix} ` : `${prefix} `;
   }
 
+  function addDays(value, amount) {
+    const [y, m, d] = String(value).split('-').map(Number);
+    const date = new Date(Date.UTC(y, m - 1, d));
+    date.setUTCDate(date.getUTCDate() + Number(amount || 0));
+    return [
+      date.getUTCFullYear(),
+      String(date.getUTCMonth() + 1).padStart(2, '0'),
+      String(date.getUTCDate()).padStart(2, '0')
+    ].join('-');
+  }
+
+  function shouldShowSearchEmpty(totalRows, visibleRows, query) {
+    return Number(totalRows) > 0 &&
+      Number(visibleRows) === 0 &&
+      String(query || '').trim().length > 0;
+  }
+
   function toUtcDay(value) {
     const [y, m, d] = String(value).split('-').map(Number);
     return Date.UTC(y, m - 1, d);
@@ -36,5 +53,5 @@
     return haystack.includes(q);
   }
 
-  return {quickText, smartDueLabel, matchesTask};
+  return {quickText, addDays, shouldShowSearchEmpty, smartDueLabel, matchesTask};
 });
