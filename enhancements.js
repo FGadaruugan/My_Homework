@@ -9,6 +9,14 @@
   let searchQuery = '';
   let observer;
 
+  function loadCloudAuth() {
+    if (document.querySelector('script[data-cloud-auth]')) return;
+    const script = document.createElement('script');
+    script.src = './cloud-auth.js';
+    script.dataset.cloudAuth = 'true';
+    document.head.append(script);
+  }
+
   function readTasks() {
     try { return M.decode(localStorage.getItem(M.KEY)); }
     catch (_) { return []; }
@@ -146,8 +154,6 @@
         const diff = M.daysBetween(today, task.due);
         let badge = meta.querySelector('.smart-due');
 
-        // The main due tag already shows overdue / today / tomorrow.
-        // Keep the extra smart badge only when it adds useful countdown detail.
         if (diff >= 2) {
           if (!badge) {
             badge = document.createElement('span');
@@ -198,6 +204,7 @@
   }
 
   function boot() {
+    loadCloudAuth();
     installQuickActions();
     installDateShortcuts();
     installSearch();
