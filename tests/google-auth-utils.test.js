@@ -10,16 +10,16 @@ assert.deepStrictEqual(
   { provider: 'google', options: { redirectTo: 'https://fgadaruugan.github.io/My_Homework/' } }
 );
 assert.strictEqual(
-  U.googleDisplayName({ user_metadata: { full_name: 'Google Name', name: 'Fallback Name', display_name: 'Old Name' }, email: 'student@gmail.com' }),
+  U.googleDisplayName({ user_metadata: { display_name: 'Custom Name', full_name: 'Google Name', name: 'Fallback Name' }, email: 'student@gmail.com' }),
+  'Custom Name'
+);
+assert.strictEqual(
+  U.googleDisplayName({ user_metadata: { full_name: 'Google Name', name: 'Fallback Name' }, email: 'student@gmail.com' }),
   'Google Name'
 );
 assert.strictEqual(
-  U.googleDisplayName({ user_metadata: { name: 'Google Name', display_name: 'Old Name' }, email: 'student@gmail.com' }),
+  U.googleDisplayName({ user_metadata: { name: 'Google Name' }, email: 'student@gmail.com' }),
   'Google Name'
-);
-assert.strictEqual(
-  U.googleDisplayName({ user_metadata: { display_name: 'Old Name' }, email: 'student@gmail.com' }),
-  'Old Name'
 );
 assert.strictEqual(
   U.googleDisplayName({ user_metadata: {}, email: 'student@gmail.com' }),
