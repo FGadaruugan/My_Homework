@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#18243b">
+  <title>Бүртгэл үүсгэх · My Homework</title>
+  <link rel="stylesheet" href="./auth.css">
+</head>
+<body class="auth-page">
+  <main class="auth-layout">
+    <section class="auth-card" aria-labelledby="signup-title">
+      <a class="auth-brand" href="./login.html"><span class="auth-mark">✓</span><span>myhomework.</span></a>
+      <p class="auth-kicker">ШИНЭ ACCOUNT</p>
+      <h1 id="signup-title">Бүртгэл үүсгэх</h1>
+      <p class="auth-subtitle">Нэр, имэйл, нууц үгээ оруулаад шууд эхлээрэй.</p>
+      <form id="signupForm" novalidate>
+        <label class="auth-field">Нэр<input id="display-name" type="text" autocomplete="name" minlength="2" maxlength="60" required></label>
+        <label class="auth-field">Имэйл<input id="email" type="email" autocomplete="email" placeholder="name@example.com" required></label>
+        <label class="auth-field">Нууц үг<input id="password" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
+        <label class="auth-field">Нууц үг давтах<input id="password-confirm" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
+        <p class="auth-status" id="status" role="status" aria-live="polite"></p>
+        <button class="auth-primary" type="submit">Бүртгэл үүсгэх</button>
+      </form>
+      <p class="auth-links">Бүртгэлтэй юу? <a href="./login.html">Нэвтрэх</a></p>
+    </section>
+  </main>
+  <script src="./firebase-auth-utils.js"></script>
+  <script type="module" src="./signup.js"></script>
+</body>
+</html>
