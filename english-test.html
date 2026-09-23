@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#18243b">
+  <title>English Test PDF — My Homework</title>
+  <meta name="description" content="Англи хэлний A4 сорилын цэвэр хувилбарыг PDF болгон татах хуудас.">
+  <style>
+    *{box-sizing:border-box}
+    :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#eef2f7}
+    body{margin:0;background:linear-gradient(180deg,#eef3fb,#f7f9fc 320px);min-height:100vh}
+    .shell{max-width:1120px;margin:0 auto;padding:28px 18px 60px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:20px}
+    .back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:#34445f;font-weight:800}
+    .badge{font-size:12px;font-weight:900;letter-spacing:.08em;color:#4661d9;background:#e9edff;border:1px solid #d8defe;padding:8px 11px;border-radius:999px}
+    .hero{background:#fff;border:1px solid #dfe6f0;border-radius:24px;padding:24px;box-shadow:0 18px 50px rgba(37,57,94,.09);display:flex;justify-content:space-between;gap:24px;align-items:center;margin-bottom:24px}
+    .hero h1{font-size:clamp(28px,4vw,44px);line-height:1.05;margin:0 0 10px}.hero h1 span{color:#4163e7}
+    .hero p{margin:0;color:#67758c;line-height:1.6;max-width:620px}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+    button,.action-link{border:0;border-radius:14px;padding:12px 16px;font:inherit;font-weight:900;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+    .primary{background:#3d60e8;color:#fff;box-shadow:0 10px 24px rgba(61,96,232,.28)}
+    .secondary{background:#eef2f8;color:#30405b}
+    #status{margin-top:9px;font-size:12px;color:#6d7890;min-height:18px}
+    .preview-title{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:0 0 12px}
+    .preview-title h2{margin:0;font-size:18px}.preview-title span{color:#78869b;font-size:13px}
+    .preview{overflow:auto;border-radius:18px;padding:18px;background:#dfe5ee;border:1px solid #d1d9e4}
+    #pdf-document{width:210mm;margin:0 auto}
+    .paper{width:210mm;min-height:297mm;background:#fff;padding:14mm 16mm 14mm;box-shadow:0 6px 20px rgba(27,39,62,.13);margin:0 auto 18px;font-family:Arial,Helvetica,sans-serif;color:#111;font-size:10.3pt;line-height:1.35;position:relative;page-break-after:always}
+    .paper:last-child{page-break-after:auto;margin-bottom:0}
+    .paper-head{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #cfd3da;padding-bottom:7px;margin-bottom:10px;font-size:9pt;font-weight:700;color:#434343}
+    .section{font-size:11pt;margin:10px 0 5px;font-weight:800}
+    .task{font-weight:700;margin:6px 0}
+    .q{margin:7px 0 3px}
+    .options{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;margin:0 0 6px 14px}
+    .options.one{grid-template-columns:1fr}
+    .passage{font-size:9.8pt;text-align:justify;margin:8px 0}
+    .page-no{position:absolute;bottom:7mm;left:0;right:0;text-align:center;font-size:9pt;color:#555}
+    .notice{margin-top:16px;color:#6d7890;font-size:12px;text-align:center}
+    @media(max-width:900px){
+      .hero{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}
+      .preview{padding:10px}
+      #pdf-document{transform-origin:top left}
+    }
+    @media print{
+      body{background:#fff}.shell{padding:0;max-width:none}.topbar,.hero,.preview-title,.notice{display:none!important}.preview{padding:0;border:0;background:#fff;overflow:visible}
+      #pdf-document{width:auto}.paper{box-shadow:none;margin:0;page-break-after:always}.paper:last-child{page-break-after:auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <a class="back" href="./index.html">← My Homework</a>
+      <span class="badge">ENGLISH · GRADE 9</span>
+    </div>
+
+    <section class="hero">
+      <div>
+        <h1>Англи хэлний сорил<span>.</span></h1>
+        <p>A4 хэмжээтэй, хариулт дугуйлсан тэмдэглэгээгүй цэвэр хувилбар. Доорх товчоор PDF үүсгээд шууд татаж болно.</p>
+        <div id="status" aria-live="polite"></div>
+      </div>
+      <div class="actions">
+        <button class="secondary" type="button" onclick="window.print()">Хэвлэх</button>
+        <button class="primary" id="download-btn" type="button">⬇ PDF татах</button>
+      </div>
+    </section>
+
+    <div class="preview-title">
+      <h2>Урьдчилан харах</h2>
+      <span>3 хуудас · A4</span>
+    </div>
+
+    <div class="preview">
+      <main id="pdf-document">
+        <section class="paper">
+          <div class="paper-head"><span>БОЛОВСРОЛЫН ҮНЭЛГЭЭНИЙ ТӨВ</span><span>Англи хэл 9-р анги</span></div>
+
+          <div class="section">SECTION 1: USE OF ENGLISH</div>
+          <div class="task">Task 1. Choose the correct answer, A, B, C or D, to complete each sentence.</div>
+
+          <div class="q">1. Before moving to New York, she ______ in Los Angeles.</div>
+          <div class="options"><span>A. lived</span><span>B. has lived</span><span>C. lives</span><span>D. live</span></div>
+
+          <div class="q">2. The restaurant ______ is on Long Street has a new owner.</div>
+          <div class="options"><span>A. who</span><span>B. where</span><span>C. which</span><span>D. what</span></div>
+
+          <div class="q">3. He is not a very good driver. He cannot stop the car ______.</div>
+          <div class="options"><span>A. smoothly</span><span>B. smooth</span><span>C. smoother</span><span>D. most smooth</span></div>
+
+          <div class="q">4. ______ the lesson finished, the students left the classroom.</div>
+          <div class="options"><span>A. While</span><span>B. After</span><span>C. Until</span><span>D. Before</span></div>
+
+          <div class="task">Task 2. Choose the correct sentence.</div>
+
+          <div class="q">5.</div>
+          <div class="options one">
+            <span>A. She bought a leather black stylish jacket.</span>
+            <span>B. She bought a stylish black leather jacket.</span>
+            <span>C. She bought a black stylish leather jacket.</span>
+            <span>D. She bought a leather stylish black jacket.</span>
+          </div>
+
+          <div class="q">6.</div>
+          <div class="options one">
+            <span>A. The teacher asked us to open our books.</span>
+            <span>B. The teacher told us open our books.</span>
+            <span>C. The teacher said us to open our books.</span>
+            <span>D. The teacher asked us open our books.</span>
+          </div>
+
+          <div class="q">7.</div>
+          <div class="options one">
+            <span>A. The window broke by the boy.</span>
+            <span>B. The window were broken by the boy.</span>
+            <span>C. The window is break by the boy.</span>
+            <span>D. The window was broken by the boy.</span>
+          </div>
+
+          <div class="section">SECTION 2. VOCABULARY</div>
+          <div class="task">Task 1. Choose the correct word from A, B, C or D to complete each sentence.</div>
+
+          <div class="q">8. I serve passengers food and drinks on an airplane. I’m ______.</div>
+          <div class="options"><span>A. a pilot</span><span>B. a flight attendant</span><span>C. a travel agent</span><span>D. a waiter</span></div>
+
+          <div class="q">9. A ______ is a long period when there is very little or no rain.</div>
+          <div class="options"><span>A. thunderstorm</span><span>B. flood</span><span>C. drought</span><span>D. blizzard</span></div>
+
+          <div class="task">Task 2. Choose the correct word to complete each definition.</div>
+
+          <div class="q">10. The game in which two or four people use rackets to hit a small ball over a net is ______.</div>
+          <div class="options"><span>A. tennis</span><span>B. football</span><span>C. badminton</span><span>D. cricket</span></div>
+
+          <div class="q">11. The ability to continue through a difficult process or situation without giving up is ______.</div>
+          <div class="options"><span>A. capability</span><span>B. recovery</span><span>C. endurance</span><span>D. resistance</span></div>
+          <div class="page-no">1</div>
+        </section>
+
+        <section class="paper">
+          <div class="paper-head"><span>БОЛОВСРОЛЫН ҮНЭЛГЭЭНИЙ ТӨВ</span><span>Англи хэл 9-р анги</span></div>
+
+          <div class="task">Task 3. Choose the correct synonym for each underlined word.</div>
+          <div class="q">12. The child is imaginative, and she can create wonderful stories.</div>
+          <div class="options"><span>A. decisive</span><span>B. inventive</span><span>C. punctual</span><span>D. reliable</span></div>
+
+          <div class="q">13. The firefighter was courageous when he entered the burning building.</div>
+          <div class="options"><span>A. brave</span><span>B. careless</span><span>C. nervous</span><span>D. confident</span></div>
+
+          <div class="section">SECTION 3. COMMUNICATION</div>
+          <div class="task">Choose the correct answer from A, B, C or D to complete each conversation.</div>
+
+          <div class="q">14.<br>A: ______________________________<br>B: No, I don’t. I prefer playing basketball.</div>
+          <div class="options one">
+            <span>A. Do you enjoy playing basketball?</span>
+            <span>B. What sport do you prefer?</span>
+            <span>C. Do you like playing soccer?</span>
+            <span>D. Are you good at soccer?</span>
+          </div>
+
+          <div class="q">15.<br>A: Where is your favorite place to visit?<br>B: My favorite place to visit is the beach.<br>A: ______________________________<br>B: No, I prefer going during the summer.</div>
+          <div class="options one">
+            <span>A. Do you go there in winter?</span>
+            <span>B. Do you swim in the ocean?</span>
+            <span>C. How often do you go to the beach?</span>
+            <span>D. Do you like the mountains too?</span>
+          </div>
+
+          <div class="section">SECTION 4. READING</div>
+          <div class="task">Read the short text and choose the correct answer from A, B, C or D.</div>
+
+          <p class="passage">Anna and her husband live in Scotland. Many years ago, they travelled to London for a holiday. They went there by train and visited several famous places, including museums, historic buildings and the River Thames.</p>
+          <p class="passage">Anna wanted to go shopping, so she visited a large department store. Her husband did not want to go inside. He preferred reading, so he found a quiet place outside and read his book while Anna went shopping.</p>
+          <p class="passage">The store had many interesting products, but they were very expensive. Anna looked around but decided not to buy anything. While she was there, she unexpectedly met two friends from school. They talked about their school days and later had tea together.</p>
+          <p class="passage">She chose a pastry, and her friends had scones with cream and jam. They talked for a long time. When she finally left the store, she remembered that her husband was still waiting outside.</p>
+          <p class="passage">She checked the time and hurried back to the bench. Her husband was still reading. He looked up, smiled and joked that she had returned quickly.</p>
+          <div class="page-no">2</div>
+        </section>
+
+        <section class="paper">
+          <div class="paper-head"><span>БОЛОВСРОЛЫН ҮНЭЛГЭЭНИЙ ТӨВ</span><span>Англи хэл 9-р анги</span></div>
+
+          <div class="q"><strong>16. Where do Anna and her husband live?</strong></div>
+          <div class="options one"><span>A. In London</span><span>B. In Paris</span><span>C. Near the department store</span><span>D. In Scotland</span></div>
+
+          <div class="q"><strong>17. How did they travel to London?</strong></div>
+          <div class="options"><span>A. By bus</span><span>B. By car</span><span>C. By train</span><span>D. By boat</span></div>
+
+          <div class="q"><strong>18. What does “bookworm” describe?</strong></div>
+          <div class="options one"><span>A. A person who likes shopping</span><span>B. A person who reads a lot</span><span>C. A person who sells books</span><span>D. A person who travels often</span></div>
+
+          <div class="q"><strong>19. Why didn’t Anna buy anything?</strong></div>
+          <div class="options one"><span>A. She did not like the goods.</span><span>B. The store was closed.</span><span>C. The prices were too high.</span><span>D. She forgot her money.</span></div>
+
+          <div class="q"><strong>20. What can we understand about her husband at the end of the story?</strong></div>
+          <div class="options one"><span>A. He was angry with her.</span><span>B. He was absorbed in his book and did not mind waiting.</span><span>C. He went inside the store.</span><span>D. He wanted to leave London immediately.</span></div>
+
+          <div class="page-no">3</div>
+        </section>
+      </main>
+    </div>
+
+    <p class="notice">PDF татах үед интернет холболт хэрэгтэй. Хэрэв татах товч ажиллахгүй бол “Хэвлэх” → “Save as PDF” ашиглаарай.</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-YcsIPGdhPK4P/uRW6/sruonlYj+Q7xvgNnYZMbk7IqfCCYu2v9W0HDKyq2F5FjY2mZtGJ6YdJ0UVRvEfbAOaiQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    const button = document.getElementById('download-btn');
+    const status = document.getElementById('status');
+
+    button.addEventListener('click', async () => {
+      if (typeof html2pdf === 'undefined') {
+        status.textContent = 'PDF үүсгэгч ачаалагдсангүй. Хэвлэх → Save as PDF ашиглаарай.';
+        window.print();
+        return;
+      }
+      button.disabled = true;
+      button.textContent = 'PDF бэлдэж байна…';
+      status.textContent = 'A4 PDF үүсгэж байна. Түр хүлээнэ үү.';
+      try {
+        await html2pdf().set({
+          margin: 0,
+          filename: 'English_Test_Clean_Full.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'] }
+        }).from(document.getElementById('pdf-document')).save();
+        status.textContent = 'PDF таталт эхэллээ.';
+      } catch (error) {
+        status.textContent = 'PDF татахад алдаа гарлаа. Хэвлэх → Save as PDF ашиглаарай.';
+      } finally {
+        button.disabled = false;
+        button.textContent = '⬇ PDF татах';
+      }
+    });
+  </script>
+</body>
+</html>
